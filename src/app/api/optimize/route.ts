@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
     const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "API key not configured" }, { status: 500 });
+      return NextResponse.json({ error: "OpenRouter API key not found in environment variables" }, { status: 500 });
     }
 
     // Use OpenRouter with Gemini Flash (cheapest option)
@@ -49,9 +49,12 @@ ${prompt}`,
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error("OpenRouter error:", error);
-      throw new Error("Optimization failed");
+      const errorText = await response.text();
+      console.error("OpenRouter error:", response.status, errorText);
+      return NextResponse.json(
+        { error: `OpenRouter API error (${response.status}): ${errorText.substring(0, 200)}` },
+        { status: response.status }
+      );
     }
 
     const data = await response.json();
@@ -67,7 +70,10 @@ ${prompt}`,
   } catch (error: any) {
     console.error("Optimization error:", error);
     return NextResponse.json(
-      { error: error.message || "Optimization failed" },
+      { 
+        error: error.message || "Optimization failed",
+        details: error.toString().substring(0, 200)
+      },
       { status: 500 }
     );
   }

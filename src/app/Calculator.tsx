@@ -268,14 +268,18 @@ export default function TokenCalculator() {
       });
 
       if (!response.ok) {
-        throw new Error("Optimization failed");
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(errorData.error || "Optimization failed");
       }
 
       const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
       setAiOptimized(data.optimized);
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI optimization error:", error);
-      alert("Failed to optimize. Please try again.");
+      alert(`Failed to optimize: ${error.message || "Unknown error"}. Check console for details.`);
     } finally {
       setAiOptimizing(false);
     }
