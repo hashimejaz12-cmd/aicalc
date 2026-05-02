@@ -47,74 +47,9 @@ function fmtTokens(n: number): string {
   return String(n);
 }
 
-// ── Prompt Optimization ─────────────────────────────────────────────────────
-
-const FILLER_WORDS = [
-  "please", "kindly", "I would like", "I want", "I need", "could you",
-  "would you", "can you", "if possible", "if you don't mind",
-  "I was wondering", "I think that", "I believe that", "in my opinion",
-  "basically", "actually", "honestly", "literally", "just",
-  "very", "really", "quite", "rather", "somewhat"
-];
-
-const REDUNDANT_PHRASES = [
-  ["in order to", "to"],
-  ["due to the fact that", "because"],
-  ["at this point in time", "now"],
-  ["for the purpose of", "to"],
-  ["in the event that", "if"],
-  ["with regard to", "about"],
-  ["in spite of the fact that", "although"],
-  ["until such time as", "until"],
-  ["during the course of", "during"],
-  ["in a timely manner", "promptly"],
-];
-
-function optimizePrompt(text: string): { optimized: string; changes: string[] } {
-  let result = text;
-  const changes: string[] = [];
-  let originalTokenCount = Math.ceil(text.trim().split(/\s+/).length / 0.75);
-
-  result = result.replace(/\s+/g, " ").trim();
-
-  REDUNDANT_PHRASES.forEach(([long, short]) => {
-    const regex = new RegExp(long, "gi");
-    if (regex.test(result)) {
-      result = result.replace(regex, short);
-      changes.push(`Simplified: "${long}" → "${short}"`);
-    }
-  });
-
-  let fillerCount = 0;
-  FILLER_WORDS.forEach(word => {
-    const regex = new RegExp(`\\b${word}\\b`, "gi");
-    const matches = result.match(regex);
-    if (matches) {
-      fillerCount += matches.length;
-      result = result.replace(regex, "");
-    }
-  });
-  if (fillerCount > 0) {
-    changes.push(`Removed ${fillerCount} filler word${fillerCount > 1 ? "s" : ""}`);
-  }
-
-  result = result.replace(/\s+/g, " ").trim();
-  result = result.replace(/[!]{2,}/g, "!");
-  result = result.replace(/[?]{2,}/g, "?");
-  result = result.replace(/\.{4,}/g, "...");
-  result = result.replace(/\n\s*\n\s*\n/g, "\n\n");
-
-  const tokensSaved = originalTokenCount - Math.ceil(result.trim().split(/\s+/).length / 0.75);
-  if (tokensSaved > 0 && changes.length === 0) {
-    changes.push("Cleaned up formatting and whitespace");
-  }
-
-  return { optimized: result, changes };
-}
-
 // ── Component ────────────────────────────────────────────────────────────────
 
-type Tab = "budget" | "counter" | "optimizer" | "roi";
+type Tab = "budget" | "counter" | "roi";
 
 export default function TokenCalculator() {
   const [activeTab, setActiveTab] = useState<Tab>("budget");
@@ -134,11 +69,6 @@ export default function TokenCalculator() {
   const [hoursPerMonth, setHoursPerMonth] = useState(80);
   const [hourlyRate, setHourlyRate] = useState(25);
   const [roiMessagesPerDay, setRoiMessagesPerDay] = useState(100);
-
-  // Prompt Optimizer state
-  const [optimizerPrompt, setOptimizerPrompt] = useState("");
-  const [optimizerModel, setOptimizerModel] = useState("GPT-4o");
-  const [optimizerFreq, setOptimizerFreq] = useState(100);
 
   // ── Budget calculations ──────────────────────────────────────────────────
 
@@ -197,39 +127,6 @@ export default function TokenCalculator() {
     return { humanCost, aiCost, savings, annualSavings, roi, paybackMonths, cheapModel };
   }, [roiUseCase, hoursPerMonth, hourlyRate, roiMessagesPerDay]);
 
-  // ── Optimizer calculations ─────────────────────────────────────────
-
-  const optimizerResult = useMemo(() => {
-    if (!optimizerPrompt.trim()) return null;
-
-    const { optimized, changes } = optimizePrompt(optimizerPrompt);
-    const originalTokens = Math.ceil(optimizerPrompt.trim().split(/\s+/).length / 0.75);
-    const optimizedTokens = Math.ceil(optimized.trim().split(/\s+/).length / 0.75);
-    const tokensSaved = originalTokens - optimizedTokens;
-    const percentSaved = originalTokens > 0 ? ((tokensSaved / originalTokens) * 100).toFixed(1) : "0";
-
-    const model = MODELS.find(m => m.name === optimizerModel)!;
-    const costPerRequest = (tokensSaved / 1_000_000) * model.inputPer1M;
-    const costPerThousand = costPerRequest * 1000;
-    const costPerMonth = costPerRequest * optimizerFreq * 30;
-
-    return {
-      optimized,
-      changes,
-      originalTokens,
-      optimizedTokens,
-      tokensSaved,
-      percentSaved,
-      costPerRequest,
-      costPerThousand,
-      costPerMonth,
-    };
-  }, [optimizerPrompt, optimizerModel, optimizerFreq]);
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
   // ── Tab button ───────────────────────────────────────────────────────────
 
   const TabBtn = ({ id, label }: { id: Tab; label: string }) => (
@@ -269,10 +166,9 @@ export default function TokenCalculator() {
         {/* Tabs */}
         <div className="flex justify-center mb-10">
           <div className="inline-flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
-            <TabBtn id="budget"    label="📊 Budget Planner" />
-            <TabBtn id="counter"   label="🔢 Token Counter" />
-            <TabBtn id="optimizer" label="✨ Prompt Optimizer" />
-            <TabBtn id="roi"       label="💰 ROI Calculator" />
+            <TabBtn id="budget"  label="📊 Budget Planner" />
+            <TabBtn id="counter" label="🔢 Token Counter" />
+            <TabBtn id="roi"     label="💰 ROI Calculator" />
           </div>
         </div>
 
@@ -521,143 +417,6 @@ export default function TokenCalculator() {
                 <p className="text-gray-400">Paste some text above to see token count and model compatibility</p>
               </div>
             )}
-          </div>
-        )}
-
-        {/* ── PROMPT OPTIMIZER ──────────────────────────────────────────────── */}
-        {activeTab === "optimizer" && (
-          <div className="space-y-6">
-            {/* Settings */}
-            <div className="glass-card p-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-300">Select Model</label>
-                  <select
-                    value={optimizerModel}
-                    onChange={e => setOptimizerModel(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-accent-blue/50"
-                  >
-                    {MODELS.map(m => (
-                      <option key={m.name} value={m.name}>{m.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <label className="text-sm font-semibold text-gray-300">Requests per day</label>
-                    <span className="text-accent-blue font-bold">{optimizerFreq}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="1"
-                    max="1000"
-                    value={optimizerFreq}
-                    onChange={e => setOptimizerFreq(Number(e.target.value))}
-                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent-blue"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>1</span>
-                    <span>1000</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Input */}
-            <div className="glass-card p-6">
-              <label className="block text-sm font-semibold mb-3 text-gray-300">
-                Paste your prompt below
-              </label>
-              <textarea
-                value={optimizerPrompt}
-                onChange={e => setOptimizerPrompt(e.target.value)}
-                placeholder="Example: Please help me write a detailed blog post about artificial intelligence. I would like it to be very informative and quite engaging for readers..."
-                rows={8}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-gray-200 placeholder-gray-600 focus:outline-none focus:border-accent-blue/50 resize-none font-mono text-sm"
-              />
-            </div>
-
-            {/* Results */}
-            {optimizerResult && optimizerResult.tokensSaved > 0 ? (
-              <>
-                {/* Savings Summary */}
-                <div className="glass-card p-8 neon-border">
-                  <div className="grid md:grid-cols-4 gap-6 mb-6">
-                    <div className="text-center">
-                      <div className="text-4xl font-extrabold gradient-text glow-text mb-2">
-                        {optimizerResult.tokensSaved}
-                      </div>
-                      <div className="text-sm text-gray-400">Tokens Saved</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-extrabold gradient-text glow-text mb-2">
-                        {optimizerResult.percentSaved}%
-                      </div>
-                      <div className="text-sm text-gray-400">Reduction</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-extrabold text-green-400 mb-2">
-                        ${optimizerResult.costPerMonth.toFixed(2)}
-                      </div>
-                      <div className="text-sm text-gray-400">Saved per Month</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-extrabold text-green-400 mb-2">
-                        ${(optimizerResult.costPerMonth * 12).toFixed(2)}
-                      </div>
-                      <div className="text-sm text-gray-400">Saved per Year</div>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-white/10 pt-6">
-                    <h3 className="text-lg font-bold mb-3 gradient-text">What we changed:</h3>
-                    <ul className="space-y-2">
-                      {optimizerResult.changes.map((change, i) => (
-                        <li key={i} className="text-gray-300 flex items-start gap-2">
-                          <span className="text-green-400 mt-1">✓</span>
-                          <span>{change}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Before/After */}
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="glass-card p-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-bold text-gray-300">Original</h3>
-                      <span className="text-sm text-gray-500">{optimizerResult.originalTokens} tokens</span>
-                    </div>
-                    <div className="bg-white/5 rounded-lg p-4 font-mono text-sm text-gray-300 whitespace-pre-wrap max-h-96 overflow-y-auto">
-                      {optimizerPrompt}
-                    </div>
-                  </div>
-
-                  <div className="glass-card p-6 neon-border">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-bold gradient-text">Optimized</h3>
-                      <span className="text-sm text-green-400">{optimizerResult.optimizedTokens} tokens</span>
-                    </div>
-                    <div className="bg-white/5 rounded-lg p-4 font-mono text-sm text-gray-300 whitespace-pre-wrap max-h-96 overflow-y-auto mb-4">
-                      {optimizerResult.optimized}
-                    </div>
-                    <button
-                      onClick={() => copyToClipboard(optimizerResult.optimized)}
-                      className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-accent-blue to-accent-purple font-semibold hover:opacity-90 transition"
-                    >
-                      Copy Optimized Prompt
-                    </button>
-                  </div>
-                </div>
-              </>
-            ) : optimizerResult && optimizerResult.tokensSaved === 0 ? (
-              <div className="glass-card p-12 text-center">
-                <div className="text-5xl mb-4">✨</div>
-                <h3 className="text-2xl font-bold mb-3 gradient-text">Already Optimized!</h3>
-                <p className="text-gray-400">Your prompt is already concise. No improvements needed.</p>
-              </div>
-            ) : null}
           </div>
         )}
 
