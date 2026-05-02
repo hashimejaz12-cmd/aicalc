@@ -3,10 +3,10 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI Token Calculator — Budget Planner, Token Counter & ROI Calculator",
+  title: "AI Token Calculator — Free GPT-4, Claude & Gemini Cost Calculator",
   description:
-    "Free AI token cost calculator. Compare GPT-4, Claude, Gemini pricing. Budget planner, token counter, and ROI calculator for businesses.",
-  keywords: "AI token calculator, GPT-4 pricing, Claude cost, LLM pricing, token counter, AI budget calculator",
+    "Free AI token cost calculator. Instantly compare GPT-4o, Claude, Gemini pricing. Budget planner, token counter, and ROI calculator. No signup required.",
+  keywords: "AI token calculator, GPT-4 cost calculator, Claude pricing, Gemini token cost, LLM pricing calculator, token counter, AI budget planner, ChatGPT cost, AI ROI calculator",
   openGraph: {
     title: "AI Token Calculator — Free Budget & Cost Tool",
     description:
