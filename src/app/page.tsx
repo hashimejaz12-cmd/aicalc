@@ -85,7 +85,12 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="max-w-7xl mx-auto px-6 py-8 border-t border-white/10 text-center text-sm text-gray-500">
-        <p>&copy; 2026 AICalc.tools. Free AI token calculator.</p>
+        <p>&copy; 2026 AICalc.tools. Free AI tools for developers.</p>
+        <p className="mt-2">
+          <a href="/" className="text-accent-blue hover:underline">Calculator</a>
+          {" · "}
+          <a href="/prompt-optimizer" className="text-accent-blue hover:underline">Prompt Optimizer</a>
+        </p>
         <p className="mt-2">
           Built by{" "}
           <a href="https://unfoldai.net" target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:underline">
