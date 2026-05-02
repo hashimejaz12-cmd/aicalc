@@ -12,14 +12,11 @@ export default function Home() {
       <div className="bg-dark border-b border-white/10 py-3">
         <div className="max-w-7xl mx-auto px-6">
           <div className="glass-card p-3 text-center text-xs text-gray-500">
-            {/* AdSense Banner Ad - Replace YOUR_PUBLISHER_ID and YOUR_AD_SLOT_ID */}
             <ins className="adsbygoogle"
               style={{ display: "block" }}
-              data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-              data-ad-slot="YOUR_AD_SLOT_ID"
+              data-ad-client="ca-pub-7914295455016301"
               data-ad-format="auto"
               data-full-width-responsive="true" />
-            Advertisement
           </div>
         </div>
       </div>
@@ -62,8 +59,7 @@ export default function Home() {
             <div className="glass-card p-4">
               <ins className="adsbygoogle"
                 style={{ display: "block" }}
-                data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                data-ad-slot="YOUR_AD_SLOT_ID"
+                data-ad-client="ca-pub-7914295455016301"
                 data-ad-format="auto"
                 data-full-width-responsive="true" />
             </div>
@@ -81,8 +77,7 @@ export default function Home() {
         <div className="glass-card p-4 text-center">
           <ins className="adsbygoogle"
             style={{ display: "block" }}
-            data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-            data-ad-slot="YOUR_AD_SLOT_ID"
+            data-ad-client="ca-pub-7914295455016301"
             data-ad-format="auto"
             data-full-width-responsive="true" />
         </div>
