@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
         "X-Title": "AICalc Prompt Optimizer",
       },
       body: JSON.stringify({
-        model: "google/gemini-flash-1.5",
+        model: "google/gemini-flash-1.5-8b",
         messages: [
           {
             role: "user",
