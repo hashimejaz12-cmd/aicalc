@@ -139,6 +139,8 @@ export default function TokenCalculator() {
   const [optimizerPrompt, setOptimizerPrompt] = useState("");
   const [optimizerModel, setOptimizerModel] = useState("GPT-4o");
   const [optimizerFreq, setOptimizerFreq] = useState(100);
+  const [aiOptimizing, setAiOptimizing] = useState(false);
+  const [aiOptimized, setAiOptimized] = useState<string | null>(null);
 
   // ── Budget calculations ──────────────────────────────────────────────────
 
@@ -226,8 +228,57 @@ export default function TokenCalculator() {
     };
   }, [optimizerPrompt, optimizerModel, optimizerFreq]);
 
+  const aiOptimizerResult = useMemo(() => {
+    if (!aiOptimized || !optimizerPrompt.trim()) return null;
+
+    const originalTokens = Math.ceil(optimizerPrompt.trim().split(/\s+/).length / 0.75);
+    const optimizedTokens = Math.ceil(aiOptimized.trim().split(/\s+/).length / 0.75);
+    const tokensSaved = originalTokens - optimizedTokens;
+    const percentSaved = originalTokens > 0 ? ((tokensSaved / originalTokens) * 100).toFixed(1) : "0";
+
+    const model = MODELS.find(m => m.name === optimizerModel)!;
+    const costPerRequest = (tokensSaved / 1_000_000) * model.inputPer1M;
+    const costPerMonth = costPerRequest * optimizerFreq * 30;
+
+    return {
+      optimized: aiOptimized,
+      originalTokens,
+      optimizedTokens,
+      tokensSaved,
+      percentSaved,
+      costPerMonth,
+    };
+  }, [aiOptimized, optimizerPrompt, optimizerModel, optimizerFreq]);
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+  };
+
+  const aiOptimize = async () => {
+    if (!optimizerPrompt.trim() || aiOptimizing) return;
+
+    setAiOptimizing(true);
+    setAiOptimized(null);
+
+    try {
+      const response = await fetch("/api/optimize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: optimizerPrompt }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Optimization failed");
+      }
+
+      const data = await response.json();
+      setAiOptimized(data.optimized);
+    } catch (error) {
+      console.error("AI optimization error:", error);
+      alert("Failed to optimize. Please try again.");
+    } finally {
+      setAiOptimizing(false);
+    }
   };
 
   // ── Tab button ───────────────────────────────────────────────────────────
@@ -570,15 +621,92 @@ export default function TokenCalculator() {
               </label>
               <textarea
                 value={optimizerPrompt}
-                onChange={e => setOptimizerPrompt(e.target.value)}
+                onChange={e => { setOptimizerPrompt(e.target.value); setAiOptimized(null); }}
                 placeholder="Example: Please help me write a detailed blog post about artificial intelligence. I would like it to be very informative and quite engaging for readers..."
                 rows={8}
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-gray-200 placeholder-gray-600 focus:outline-none focus:border-accent-blue/50 resize-none font-mono text-sm"
               />
+              {optimizerResult && optimizerResult.tokensSaved > 0 && (
+                <button
+                  onClick={aiOptimize}
+                  disabled={aiOptimizing}
+                  className="mt-4 w-full px-6 py-3 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {aiOptimizing ? "Optimizing with AI..." : "✨ AI-Optimize (Even Better Results)"}
+                </button>
+              )}
             </div>
 
             {/* Results */}
-            {optimizerResult && optimizerResult.tokensSaved > 0 ? (
+            {aiOptimizerResult ? (
+              <>
+                {/* AI Results Header */}
+                <div className="glass-card p-6 bg-gradient-to-r from-accent-purple/20 to-accent-blue/20 neon-border text-center">
+                  <div className="text-3xl mb-2">✨</div>
+                  <h3 className="text-2xl font-bold gradient-text mb-2">AI-Optimized Results</h3>
+                  <p className="text-gray-300">Claude Haiku analyzed and rewrote your prompt for maximum efficiency</p>
+                </div>
+
+                {/* AI Savings Summary */}
+                <div className="glass-card p-8 neon-border">
+                  <div className="grid md:grid-cols-4 gap-6">
+                    <div className="text-center">
+                      <div className="text-4xl font-extrabold gradient-text glow-text mb-2">
+                        {aiOptimizerResult.tokensSaved}
+                      </div>
+                      <div className="text-sm text-gray-400">Tokens Saved</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl font-extrabold gradient-text glow-text mb-2">
+                        {aiOptimizerResult.percentSaved}%
+                      </div>
+                      <div className="text-sm text-gray-400">Reduction</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl font-extrabold text-green-400 mb-2">
+                        ${aiOptimizerResult.costPerMonth.toFixed(2)}
+                      </div>
+                      <div className="text-sm text-gray-400">Saved per Month</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl font-extrabold text-green-400 mb-2">
+                        ${(aiOptimizerResult.costPerMonth * 12).toFixed(2)}
+                      </div>
+                      <div className="text-sm text-gray-400">Saved per Year</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI Before/After */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="glass-card p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-bold text-gray-300">Original</h3>
+                      <span className="text-sm text-gray-500">{aiOptimizerResult.originalTokens} tokens</span>
+                    </div>
+                    <div className="bg-white/5 rounded-lg p-4 font-mono text-sm text-gray-300 whitespace-pre-wrap max-h-96 overflow-y-auto">
+                      {optimizerPrompt}
+                    </div>
+                  </div>
+
+                  <div className="glass-card p-6 neon-border bg-gradient-to-br from-accent-purple/10 to-accent-blue/10">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-bold gradient-text">✨ AI-Optimized</h3>
+                      <span className="text-sm text-green-400">{aiOptimizerResult.optimizedTokens} tokens</span>
+                    </div>
+                    <div className="bg-white/5 rounded-lg p-4 font-mono text-sm text-gray-300 whitespace-pre-wrap max-h-96 overflow-y-auto mb-4">
+                      {aiOptimizerResult.optimized}
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(aiOptimizerResult.optimized)}
+                      className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-accent-blue to-accent-purple font-semibold hover:opacity-90 transition"
+                    >
+                      Copy AI-Optimized Prompt
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : optimizerResult && optimizerResult.tokensSaved > 0 ? (
               <>
                 {/* Savings Summary */}
                 <div className="glass-card p-8 neon-border">
