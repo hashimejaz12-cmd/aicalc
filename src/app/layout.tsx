@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   description:
     "Free AI token cost calculator. Instantly compare GPT-4o, Claude, Gemini pricing. Budget planner, token counter, and ROI calculator. No signup required.",
   keywords: "AI token calculator, GPT-4 cost calculator, Claude pricing, Gemini token cost, LLM pricing calculator, token counter, AI budget planner, ChatGPT cost, AI ROI calculator",
+  alternates: {
+    canonical: "https://aicalc.tools",
+  },
   openGraph: {
     title: "AI Token Calculator — Free Budget & Cost Tool",
     description:
@@ -32,6 +35,39 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <head>
         <meta name="google-site-verification" content="o0c2VU9EAP7xqQquOi0XObZIWldj_oEKVMWC1cAqPUw" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="author" content="AICalc.tools" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              "name": "AI Token Calculator",
+              "description": "Free AI token cost calculator and prompt optimizer",
+              "url": "https://aicalc.tools",
+              "applicationCategory": "UtilitiesApplication",
+              "operatingSystem": "Any",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              "featureList": [
+                "Budget Planner",
+                "Token Counter",
+                "Prompt Optimizer",
+                "ROI Calculator"
+              ],
+              "author": {
+                "@type": "Organization",
+                "name": "UnfoldAI",
+                "url": "https://unfoldai.net"
+              }
+            })
+          }}
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"

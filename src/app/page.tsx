@@ -83,6 +83,23 @@ export default function Home() {
         </div>
       </div>
 
+      {/* SEO Content Block */}
+      <section className="max-w-4xl mx-auto px-6 py-12 text-center">
+        <div className="glass-card p-8">
+          <h2 className="text-2xl font-bold mb-4 text-gray-300">Free AI Token Calculator & Prompt Optimizer</h2>
+          <p className="text-gray-400 mb-4">
+            AICalc.tools is the most comprehensive free AI cost calculator for developers and businesses. 
+            Compare pricing across GPT-4, GPT-4o, Claude Sonnet, Claude Haiku, Gemini Pro, and Gemini Flash. 
+            Calculate your AI API costs, optimize prompts to save 50% on tokens, and measure ROI for AI automation.
+          </p>
+          <p className="text-gray-400">
+            Perfect for: OpenAI API users, Anthropic Claude developers, Google Gemini implementations, 
+            AI startups managing costs, and businesses automating with ChatGPT. No signup required, 
+            completely free, with instant AI-powered prompt optimization using Claude Haiku.
+          </p>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="max-w-7xl mx-auto px-6 py-8 border-t border-white/10 text-center text-sm text-gray-500">
         <p>&copy; 2026 AICalc.tools. Free AI tools for developers.</p>
