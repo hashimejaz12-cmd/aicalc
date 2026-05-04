@@ -22,8 +22,9 @@ export default function Home() {
       </div>
 
       {/* Main Content with Sidebar */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid lg:grid-cols-[280px_1fr] gap-8">
+      <div className="w-full">
+        <div className="max-w-[1400px] mx-auto px-6 py-8">
+          <div className="grid lg:grid-cols-[280px_1fr] gap-8">
           {/* Sidebar */}
           <aside className="space-y-6">
             {/* Recommended Tools */}
@@ -66,8 +67,9 @@ export default function Home() {
           </aside>
 
           {/* Calculator */}
-          <div>
-            <Calculator />
+            <div>
+              <Calculator />
+            </div>
           </div>
         </div>
       </div>
