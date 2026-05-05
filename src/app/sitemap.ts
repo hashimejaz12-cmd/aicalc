@@ -1,17 +1,25 @@
-import { MetadataRoute } from "next";
+import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = 'https://aicalc.tools';
+  
   return [
     {
-      url: "https://aicalc.tools",
+      url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: "weekly",
+      changeFrequency: 'monthly',
       priority: 1,
     },
     {
-      url: "https://aicalc.tools/prompt-optimizer",
+      url: `${baseUrl}/tools/token-calculator`,
       lastModified: new Date(),
-      changeFrequency: "weekly",
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/directory`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
       priority: 0.9,
     },
   ];
