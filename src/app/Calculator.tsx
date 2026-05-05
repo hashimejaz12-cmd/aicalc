@@ -114,7 +114,7 @@ function optimizePrompt(text: string): { optimized: string; changes: string[] } 
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-type Tab = "budget" | "counter" | "optimizer" | "roi";
+type Tab = "budget" | "counter" | "optimizer" | "roi" | "directory";
 
 export default function TokenCalculator() {
   const [activeTab, setActiveTab] = useState<Tab>("budget");
@@ -328,6 +328,7 @@ export default function TokenCalculator() {
             <TabBtn id="counter"   label="🔢 Token Counter" />
             <TabBtn id="optimizer" label="✨ Prompt Optimizer" />
             <TabBtn id="roi"       label="💰 ROI Calculator" />
+            <TabBtn id="directory" label="🔍 AI Tools" />
           </div>
         </div>
 
@@ -900,6 +901,35 @@ export default function TokenCalculator() {
               <p className="text-center text-xs text-gray-500">
                 Setup from $149 · Uses {roiCalc.cheapModel.name} at ${roiCalc.cheapModel.inputPer1M}/1M input tokens
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── AI TOOLS DIRECTORY ───────────────────────────────────────── */}
+        {activeTab === "directory" && (
+          <div className="glass-card p-8 text-center">
+            <h2 className="text-3xl font-bold mb-4 gradient-text">🔍 Discover 1,500+ AI Tools</h2>
+            <p className="text-lg text-gray-400 mb-6 max-w-2xl mx-auto">
+              Browse our comprehensive directory of AI tools across 11 categories. Search, filter, and find the perfect AI software for your needs.
+            </p>
+            <a
+              href="/directory"
+              className="inline-block px-10 py-4 rounded-xl bg-gradient-to-r from-accent-blue to-accent-purple font-bold text-lg hover:opacity-90 transition neon-border"
+            >
+              Browse AI Tools Directory →
+            </a>
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto text-left">
+              {[
+                { cat: "Code & Dev", count: "285 tools" },
+                { cat: "Image & Design", count: "319 tools" },
+                { cat: "Writing", count: "90 tools" },
+                { cat: "Chat Assistants", count: "87 tools" },
+              ].map(item => (
+                <div key={item.cat} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                  <div className="text-sm font-semibold text-white mb-1">{item.cat}</div>
+                  <div className="text-xs text-gray-400">{item.count}</div>
+                </div>
+              ))}
             </div>
           </div>
         )}
