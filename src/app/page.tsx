@@ -8,6 +8,20 @@ const Calculator = dynamic(() => import("./Calculator"), { ssr: false });
 export default function Home() {
   return (
     <div className="relative">
+      {/* Header Nav */}
+      <nav className="bg-dark border-b border-white/10 py-4">
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+          <a href="/" className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            AICalc.tools
+          </a>
+          <div className="flex gap-6 text-sm">
+            <a href="/" className="text-gray-300 hover:text-white transition">Calculator</a>
+            <a href="/prompt-optimizer" className="text-gray-300 hover:text-white transition">Prompt Optimizer</a>
+            <a href="/directory" className="text-gray-300 hover:text-white transition">AI Tools Directory</a>
+          </div>
+        </div>
+      </nav>
+
       {/* Top Ad Banner */}
       <div className="bg-dark border-b border-white/10 py-3">
         <div className="max-w-7xl mx-auto px-6">
@@ -109,6 +123,8 @@ export default function Home() {
           <a href="/" className="text-accent-blue hover:underline">Calculator</a>
           {" · "}
           <a href="/prompt-optimizer" className="text-accent-blue hover:underline">Prompt Optimizer</a>
+          {" · "}
+          <a href="/directory" className="text-accent-blue hover:underline">AI Tools Directory</a>
         </p>
         <p className="mt-2">
           Built by{" "}
